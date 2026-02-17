@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="de" data-theme="dark">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>HabitFlow – Dein Habit Workflow Worksheet</title>
+  <meta name="description"
+    content="Umfassendes digitales Habit Worksheet mit Streak-Tracking, Heatmap, Habit Stacking, Goals und Gamification – für Handy und Computer.">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#7f5af0">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="apple-touch-icon" href="icon-192.svg">
+  <link rel="icon"
+    href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌿</text></svg>">
+</head>
+
+<body>
+
+  <!-- ═══ Mobile Header ═══ -->
+  <div class="mobile-header">
+    <div class="sidebar-logo">
+      <div class="logo-icon">🌿</div>
+      <div>
+        <h1>HabitFlow</h1>
+      </div>
+    </div>
+    <button class="hamburger" onclick="toggleSidebar()" aria-label="Menu">☰</button>
+  </div>
+
+  <div class="app-container">
+
+    <!-- ═══ Sidebar (Desktop) ═══ -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">
+          <div class="logo-icon">🌿</div>
+          <div>
+            <h1>HabitFlow</h1>
+            <div class="subtitle">Workflow Worksheet</div>
+          </div>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-section-title">Übersicht</div>
+        <button class="nav-item active" data-page="dashboard" onclick="showPage('dashboard')">
+          <span class="nav-icon">📊</span> Dashboard
+        </button>
+        <button class="nav-item" data-page="weekly" onclick="showPage('weekly')">
+          <span class="nav-icon">📅</span> Wochenansicht
+        </button>
+        <button class="nav-item" data-page="monthly" onclick="showPage('monthly')">
+          <span class="nav-icon">🗓️</span> Monats-Heatmap
+        </button>
+
+        <div class="nav-section-title">Verwalten</div>
+        <button class="nav-item" data-page="habits" onclick="showPage('habits')">
+          <span class="nav-icon">✏️</span> Habits verwalten
+        </button>
+        <button class="nav-item" data-page="goals" onclick="showPage('goals')">
+          <span class="nav-icon">🎯</span> Ziele & Meilensteine
+        </button>
+
+        <div class="nav-section-title">Fortschritte</div>
+        <button class="nav-item" data-page="stats" onclick="showPage('stats')">
+          <span class="nav-icon">🏆</span> Stats & Badges
+        </button>
+
+        <div class="nav-section-title">System</div>
+        <button class="nav-item" data-page="settings" onclick="showPage('settings')">
+          <span class="nav-icon">⚙️</span> Einstellungen
+        </button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <button class="theme-toggle" onclick="toggleTheme()">
+          <span id="themeIcon">🌙</span>
+          <span id="themeLabel">Dark Mode</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- ═══ Main Content ═══ -->
+    <main class="main-content">
+
+      <!-- ══════════════════════════════════
+           PAGE: DASHBOARD
+           ══════════════════════════════════ -->
+      <section class="page-section active" id="page-dashboard">
+        <div class="top-bar">
+          <div class="top-bar-left">
+            <h2>Dashboard</h2>
+            <div class="date-display" id="dateDisplay"></div>
+          </div>
+          <div class="top-bar-right">
+            <button class="btn btn-primary" onclick="openHabitModal()">
+              <span>＋</span> Neues Habit
+            </button>
+          </div>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="stats-grid" id="statsGrid">
+          <div class="stat-card">
+            <div class="stat-label">Heute erledigt</div>
+            <div class="stat-value" id="statToday">0/0</div>
+            <div class="stat-change positive" id="statTodayChange"></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Aktueller Streak</div>
+            <div class="stat-value" id="statStreak">0 🔥</div>
+            <div class="stat-change" id="statStreakChange"></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Woche</div>
+            <div class="stat-value" id="statWeek">0%</div>
+            <div class="stat-change" id="statWeekChange"></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Gesamt-Score</div>
+            <div class="stat-value" id="statScore">0</div>
+            <div class="stat-change positive" id="statScoreChange"></div>
+          </div>
+        </div>
+
+        <!-- SVG defs for progress gradient -->
+        <svg width="0" height="0" style="position:absolute;">
+          <defs>
+            <linearGradient id="progressGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" style="stop-color:#7f5af0" />
+              <stop offset="100%" style="stop-color:#2cb67d" />
+            </linearGradient>
+          </defs>
+        </svg>
+
+        <!-- Progress Ring + Category Breakdown -->
+        <div class="dashboard-grid" style="margin-bottom:20px;">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title"><span class="icon">⭕</span> Tagesfortschritt</div>
+            </div>
+            <div class="progress-ring-container" id="progressRingContainer">
+              <div class="progress-ring">
+                <svg viewBox="0 0 140 140">
+                  <circle class="ring-bg" cx="70" cy="70" r="58"></circle>
+                  <circle class="ring-fill" id="progressRingFill" cx="70" cy="70" r="58" stroke-dasharray="364.4"
+                    stroke-dashoffset="364.4"></circle>
+                </svg>
+                <div class="ring-text">
+                  <div class="ring-pct" id="ringPct">0%</div>
+                  <div class="ring-label">Erledigt</div>
+                </div>
+              </div>
+              <div class="progress-details" id="progressDetails"></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title"><span class="icon">📊</span> Kategorien heute</div>
+            </div>
+            <div class="category-bars" id="categoryBars">
+              <div class="empty-state" style="padding:16px 0;">
+                <p style="font-size:0.82rem;">Erstelle Habits um Kategorien zu sehen</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="dashboard-grid">
+          <!-- Today's Habits -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title"><span class="icon">📋</span> Heutige Habits</div>
+              <span style="font-size:0.78rem;color:var(--text-muted);" id="habitCountLabel"></span>
+            </div>
+            <div class="habit-list" id="todayHabitList">
+              <div class="empty-state">
+                <div class="empty-icon">🌱</div>
+                <p>Noch keine Habits erstellt. Klicke auf "+ Neues Habit" um zu starten!</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Sidebar -->
+          <div style="display:flex;flex-direction:column;gap:20px;">
+            <!-- Mood -->
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title"><span class="icon">😊</span> Stimmung heute</div>
+              </div>
+              <div class="mood-picker" id="moodPicker">
+                <button class="mood-btn" data-mood="great" onclick="setMood('great')" title="Super">😄</button>
+                <button class="mood-btn" data-mood="good" onclick="setMood('good')" title="Gut">🙂</button>
+                <button class="mood-btn" data-mood="neutral" onclick="setMood('neutral')" title="Neutral">😐</button>
+                <button class="mood-btn" data-mood="bad" onclick="setMood('bad')" title="Schlecht">😔</button>
+                <button class="mood-btn" data-mood="terrible" onclick="setMood('terrible')"
+                  title="Sehr schlecht">😫</button>
+              </div>
+              <textarea class="mood-note" id="moodNote" placeholder="Wie fühlst du dich heute? (optional)"
+                oninput="saveMoodNote()"></textarea>
+            </div>
+
+            <!-- Top Streaks -->
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title"><span class="icon">🔥</span> Top Streaks</div>
+              </div>
+              <div class="streak-summary" id="streakSummary">
+                <div class="empty-state" style="padding:24px 0;">
+                  <p style="font-size:0.82rem;">Streaks erscheinen hier sobald du Habits abschließt</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════════════════════════════════
+           PAGE: WEEKLY VIEW
+           ══════════════════════════════════ -->
+      <section class="page-section" id="page-weekly">
+        <div class="top-bar">
+          <div class="top-bar-left">
+            <h2>Wochenansicht</h2>
+          </div>
+        </div>
+        <div class="card">
+          <div class="weekly-nav">
+            <button class="btn-icon" onclick="changeWeek(-1)">◀</button>
+            <span class="week-label" id="weekLabel"></span>
+            <button class="btn-icon" onclick="changeWeek(1)">▶</button>
+            <button class="btn btn-secondary btn-sm" onclick="changeWeek(0)">Heute</button>
+          </div>
+          <div class="weekly-grid">
+            <table class="weekly-table" id="weeklyTable">
+              <thead>
+                <tr id="weeklyHeader"></tr>
+              </thead>
+              <tbody id="weeklyBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════════════════════════════════
+           PAGE: MONTHLY HEATMAP
+           ══════════════════════════════════ -->
+      <section class="page-section" id="page-monthly">
+        <div class="top-bar">
+          <div class="top-bar-left">
+            <h2>Monats-Heatmap</h2>
+          </div>
+        </div>
+        <div class="card">
+          <div class="month-nav">
+            <button class="btn-icon" onclick="changeMonth(-1)">◀</button>
+            <span class="month-label" id="monthLabel"></span>
+            <button class="btn-icon" onclick="changeMonth(1)">▶</button>
+            <button class="btn btn-secondary btn-sm" onclick="changeMonth(0)">Aktuell</button>
+          </div>
+          <div class="heatmap-container" id="heatmapContainer"></div>
+          <div class="heatmap-legend">
+            <span>Weniger</span>
+            <div class="heatmap-legend-cell" style="background:var(--bg-glass);border:1px solid var(--border-color);">
+            </div>
+            <div class="heatmap-legend-cell" style="background:rgba(127,90,240,0.2);"></div>
+            <div class="heatmap-legend-cell" style="background:rgba(127,90,240,0.4);"></div>
+            <div class="heatmap-legend-cell" style="background:rgba(127,90,240,0.6);"></div>
+            <div class="heatmap-legend-cell" style="background:rgba(127,90,240,0.85);"></div>
+            <span>Mehr</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════════════════════════════════
+           PAGE: HABITS MANAGER
+           ══════════════════════════════════ -->
+      <section class="page-section" id="page-habits">
+        <div class="top-bar">
+          <div class="top-bar-left">
+            <h2>Habits verwalten</h2>
+          </div>
+          <div class="top-bar-right">
+            <button class="btn btn-primary" onclick="openHabitModal()">
+              <span>＋</span> Habit erstellen
+            </button>
+          </div>
+        </div>
+        <div class="habit-manager-grid" id="habitManagerGrid">
+          <div class="empty-state">
+            <div class="empty-icon">📝</div>
+            <p>Erstelle dein erstes Habit, um loszulegen!</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════════════════════════════════
+           PAGE: GOALS
+           ══════════════════════════════════ -->
+      <section class="page-section" id="page-goals">
+        <div class="top-bar">
+          <div class="top-bar-left">
+            <h2>Ziele & Meilensteine</h2>
+          </div>
+          <div class="top-bar-right">
+            <button class="btn btn-primary" onclick="openGoalModal()">
+              <span>＋</span> Neues Ziel
+            </button>
+          </div>
+        </div>
+        <div id="goalsContainer">
+          <div class="empty-state">
+            <div class="empty-icon">🎯</div>
+            <p>Setze dir ein Ziel und verknüpfe es mit deinen Habits!</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════════════════════════════════
+           PAGE: STATS & BADGES
+           ══════════════════════════════════ -->
+      <section class="page-section" id="page-stats">
+        <div class="top-bar">
+          <div class="top-bar-left">
+            <h2>Stats & Badges</h2>
+          </div>
+        </div>
+        <div class="card" style="margin-bottom:20px;">
+          <div class="card-header">
+            <div class="card-title"><span class="icon">📈</span> Wöchentliche Abschlussrate</div>
+          </div>
+          <div class="chart-container">
+            <div class="bar-chart" id="weeklyBarChart"></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title"><span class="icon">🏅</span> Deine Badges</div>
+          </div>
+          <div class="badges-grid" id="badgesGrid"></div>
+        </div>
+      </section>
+
+      <!-- ══════════════════════════════════
+           PAGE: SETTINGS
+           ══════════════════════════════════ -->
+      <section class="page-section" id="page-settings">
+        <div class="top-bar">
+          <div class="top-bar-left">
+            <h2>Einstellungen</h2>
+          </div>
+        </div>
+        <div class="card">
+          <div class="settings-section">
+            <h3>🎨 Erscheinungsbild</h3>
+            <div class="settings-row">
+              <div>
+                <div class="label">Dunkler Modus</div>
+                <div class="desc">Zwischen Hell und Dunkel wechseln</div>
+              </div>
+              <button class="btn btn-secondary btn-sm" onclick="toggleTheme()" id="settingsThemeBtn">Dark Mode</button>
+            </div>
+          </div>
+          <div class="settings-section">
+            <h3>💾 Daten</h3>
+            <div class="settings-row">
+              <div>
+                <div class="label">Daten exportieren</div>
+                <div class="desc">Alle Habits, Fortschritte & Ziele als JSON sichern</div>
+              </div>
+              <button class="btn btn-secondary btn-sm" onclick="exportData()">📥 Export</button>
+            </div>
+            <div class="settings-row">
+              <div>
+                <div class="label">Daten importieren</div>
+                <div class="desc">Gesicherte JSON-Datei wiederherstellen</div>
+              </div>
+              <button class="btn btn-secondary btn-sm" onclick="importData()">📤 Import</button>
+            </div>
+            <div class="settings-row">
+              <div>
+                <div class="label">Alle Daten löschen</div>
+                <div class="desc">Setzt die App komplett zurück</div>
+              </div>
+              <button class="btn btn-danger btn-sm" onclick="clearAllData()">🗑 Zurücksetzen</button>
+            </div>
+          </div>
+          <div class="settings-section">
+            <h3>ℹ️ Info</h3>
+            <div class="settings-row">
+              <div>
+                <div class="label">HabitFlow v1.0</div>
+                <div class="desc">Ein umfassendes Habit-Workflow-Worksheet – inspiriert von Atomic Habits, Habitica &
+                  den besten Tracking-Apps.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- ═══ Mobile Bottom Nav ═══ -->
+  <nav class="mobile-nav">
+    <div class="mobile-nav-items">
+      <button class="mobile-nav-item active" data-page="dashboard" onclick="showPage('dashboard')">
+        <span class="nav-icon">📊</span>
+        <span class="nav-label">Home</span>
+      </button>
+      <button class="mobile-nav-item" data-page="weekly" onclick="showPage('weekly')">
+        <span class="nav-icon">📅</span>
+        <span class="nav-label">Woche</span>
+      </button>
+      <button class="mobile-nav-item" data-page="monthly" onclick="showPage('monthly')">
+        <span class="nav-icon">🗓️</span>
+        <span class="nav-label">Monat</span>
+      </button>
+      <button class="mobile-nav-item" data-page="habits" onclick="showPage('habits')">
+        <span class="nav-icon">✏️</span>
+        <span class="nav-label">Habits</span>
+      </button>
+      <button class="mobile-nav-item" data-page="stats" onclick="showPage('stats')">
+        <span class="nav-icon">🏆</span>
+        <span class="nav-label">Stats</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ═══ Habit Modal ═══ -->
+  <div class="modal-overlay" id="habitModal">
+    <div class="modal">
+      <div class="modal-title">✨ <span id="habitModalTitle">Neues Habit erstellen</span></div>
+      <form onsubmit="saveHabit(event)">
+        <input type="hidden" id="habitEditId">
+        <div class="form-group">
+          <label class="form-label" for="habitName">Name</label>
+          <input class="form-input" id="habitName" type="text" placeholder="z.B. 30 Min joggen" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="habitDesc">Beschreibung (optional)</label>
+          <input class="form-input" id="habitDesc" type="text" placeholder="Kurze Beschreibung">
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="habitCategory">Kategorie</label>
+            <select class="form-select" id="habitCategory">
+              <option value="health">🍏 Gesundheit</option>
+              <option value="fitness">💪 Fitness</option>
+              <option value="mindfulness">🧘 Achtsamkeit</option>
+              <option value="productivity">⚡ Produktivität</option>
+              <option value="social">👥 Soziales</option>
+              <option value="learning">📚 Lernen</option>
+              <option value="other">📌 Sonstiges</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="habitFrequency">Häufigkeit</label>
+            <select class="form-select" id="habitFrequency">
+              <option value="daily">Täglich</option>
+              <option value="weekdays">Mo–Fr</option>
+              <option value="3x">3x / Woche</option>
+              <option value="weekly">1x / Woche</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="habitStack">Habit Stacking (optional)</label>
+          <input class="form-input" id="habitStack" type="text" placeholder='z.B. "Nach dem Zähneputzen mache ich..."'>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" onclick="closeHabitModal()">Abbrechen</button>
+          <button type="submit" class="btn btn-primary">💾 Speichern</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ═══ Goal Modal ═══ -->
+  <div class="modal-overlay" id="goalModal">
+    <div class="modal">
+      <div class="modal-title">🎯 <span id="goalModalTitle">Neues Ziel setzen</span></div>
+      <form onsubmit="saveGoal(event)">
+        <input type="hidden" id="goalEditId">
+        <div class="form-group">
+          <label class="form-label" for="goalName">Ziel-Name</label>
+          <input class="form-input" id="goalName" type="text" placeholder="z.B. Halbmarathon laufen" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="goalDesc">Beschreibung</label>
+          <textarea class="form-textarea" id="goalDesc" placeholder="Was möchtest du erreichen?"></textarea>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="goalDeadline">Deadline</label>
+            <input class="form-input" id="goalDeadline" type="date">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="goalTarget">Ziel-Tage</label>
+            <input class="form-input" id="goalTarget" type="number" min="1" value="30" placeholder="30">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Verknüpfte Habits</label>
+          <div id="goalHabitCheckboxes" style="display:flex;flex-wrap:wrap;gap:8px;padding-top:4px;"></div>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" onclick="closeGoalModal()">Abbrechen</button>
+          <button type="submit" class="btn btn-primary">💾 Speichern</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ═══ Toast Container ═══ -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- ═══ Hidden file input for import ═══ -->
+  <input type="file" id="importFileInput" accept=".json" style="display:none" onchange="handleImportFile(event)">
+
+  <script src="app.js"></script>
+  <script>
+    // Register Service Worker for PWA
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function () {
+        navigator.serviceWorker.register('./service-worker.js').then(function (reg) {
+          console.log('ServiceWorker registered:', reg.scope);
+        }).catch(function (err) {
+          console.log('ServiceWorker registration failed:', err);
+        });
+      });
+    }
+  </script>
+</body>
+
+</html>
