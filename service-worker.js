@@ -1,5 +1,5 @@
 // HabitFlow Service Worker – enables offline access & PWA install
-var CACHE_NAME = 'habitflow-v1';
+var CACHE_NAME = 'habitflow-v2';
 var ASSETS = [
     './',
     './index.html',
