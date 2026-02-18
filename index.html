@@ -136,6 +136,18 @@
           </defs>
         </svg>
 
+        </svg>
+
+        <!-- Weekly Progress Chart -->
+        <div class="card" style="margin-bottom:20px;">
+          <div class="card-header">
+            <div class="card-title"><span class="icon">📈</span> Dein Wochen-Verlauf</div>
+          </div>
+          <div class="chart-container">
+            <div class="bar-chart" id="dashboardWeeklyChart"></div>
+          </div>
+        </div>
+
         <!-- Progress Ring + Category Breakdown -->
         <div class="dashboard-grid" style="margin-bottom:20px;">
           <div class="card">
@@ -214,6 +226,45 @@
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+
+        <!-- Side Mission Card -->
+        <div class="card" style="margin-bottom:20px; border-left: 4px solid var(--accent-warm);">
+          <div class="card-header">
+            <div class="card-title"><span class="icon">⚔️</span> Side Mission</div>
+          </div>
+          <div class="mission-controls" id="missionSetup">
+            <div style="margin-bottom:10px;">
+              <input type="text" id="missionName" class="form-input" placeholder="Mission Name (z.B. Aufräumen)"
+                style="width:100%;margin-bottom:8px;">
+              <div style="display:flex;gap:15px;align-items:center;margin-bottom:8px;font-size:0.9rem;">
+                <label><input type="radio" name="missionType" value="duration" checked onchange="toggleMissionType()">
+                  Dauer</label>
+                <label><input type="radio" name="missionType" value="target" onchange="toggleMissionType()"> Bis
+                  Zeitpunkt</label>
+              </div>
+              <div id="missionInputDuration">
+                <div style="display:flex;align-items:center;gap:8px;">
+                  <input type="number" id="missionDuration" class="form-input" placeholder="Min" style="width:80px;"
+                    value="20"> min
+                </div>
+              </div>
+              <div id="missionInputTarget" style="display:none;">
+                <input type="datetime-local" id="missionTargetTime" class="form-input">
+              </div>
+            </div>
+            <button class="btn btn-primary" onclick="startMission()" style="width:100%;">🚀 Mission Starten</button>
+          </div>
+        </div>
+
+        <!-- Active Missions List -->
+        <div id="activeMissionsList" style="margin-top:10px; display:none;">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title"><span class="icon">⚔️</span> Aktive Missionen</div>
+            </div>
+            <div id="missionsContainer" style="display:flex;flex-direction:column;gap:10px;padding:10px;"></div>
           </div>
         </div>
       </section>
@@ -365,18 +416,35 @@
             </div>
           </div>
           <div class="settings-section">
+            <h3>🎨 Design</h3>
+            <div class="settings-row">
+              <div>
+                <div class="label">Hintergrundbild</div>
+                <div class="desc">Lade dein eigenes Wallpaper hoch (z.B. Toji Fushiguro)</div>
+              </div>
+              <div style="display:flex;gap:8px;">
+                <input type="file" id="bgUploadInput" accept="image/*" style="display:none"
+                  onchange="handleBackgroundUpload(event)">
+                <button class="btn btn-secondary btn-sm" onclick="document.getElementById('bgUploadInput').click()">🖼
+                  Hochladen</button>
+                <button class="btn btn-danger btn-sm" onclick="resetBackground()">❌ Reset</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="settings-section">
             <h3>💾 Daten</h3>
             <div class="settings-row">
               <div>
-                <div class="label">Daten exportieren</div>
-                <div class="desc">Alle Habits, Fortschritte & Ziele als JSON sichern</div>
+                <div class="label">Exportieren</div>
+                <div class="desc">Sichere deine Habits als Datei</div>
               </div>
               <button class="btn btn-secondary btn-sm" onclick="exportData()">📥 Export</button>
             </div>
             <div class="settings-row">
               <div>
-                <div class="label">Daten importieren</div>
-                <div class="desc">Gesicherte JSON-Datei wiederherstellen</div>
+                <div class="label">Importieren</div>
+                <div class="desc">Lade ein Backup hoch</div>
               </div>
               <button class="btn btn-secondary btn-sm" onclick="importData()">📤 Import</button>
             </div>

@@ -309,7 +309,42 @@ function isHabitFulfilled(habit) {
 // DASHBOARD RENDER
 // ═══════════════════════════════════════
 
+function renderDashboardChart() {
+  var chart = document.getElementById('dashboardWeeklyChart');
+  if (!chart) return;
+
+  var habits = getActiveHabits();
+  var totalH = habits.length || 1;
+  var bars = '';
+
+  for (var i = 6; i >= 0; i--) {
+    var d = new Date();
+    d.setDate(d.getDate() - i);
+    var key = dateKey(d);
+    var done = 0;
+
+    for (var j = 0; j < habits.length; j++) {
+      if (isCompleted(habits[j].id, key)) done++;
+    }
+
+    var pct = Math.round(done / totalH * 100);
+    var isToday = i === 0;
+
+    // Anime vibe: glow for today
+    var barStyle = 'height:' + Math.max(4, pct) + '%;';
+    if (isToday) barStyle += 'background:var(--accent-primary);box-shadow:0 0 15px var(--accent-primary);';
+
+    bars += '<div class="bar-col">';
+    bars += '<div class="bar-value" style="font-size:0.6rem;">' + pct + '%</div>';
+    bars += '<div class="bar" style="' + barStyle + '"></div>';
+    bars += '<div class="bar-label">' + DAYS_DE[d.getDay()] + '</div>';
+    bars += '</div>';
+  }
+  chart.innerHTML = bars;
+}
+
 function renderDashboard() {
+  renderDashboardChart();
   document.getElementById('dateDisplay').textContent = formatDateDe(new Date());
 
   var todayHabits = getTodayHabits();
@@ -1008,6 +1043,286 @@ document.addEventListener('keydown', function (e) {
 });
 
 // ═══════════════════════════════════════
+// SIDE MISSIONS (TIMER)
+// ═══════════════════════════════════════
+
+var missionInterval;
+var activeMissions = [];
+
+function loadMissionState() {
+  var stored = localStorage.getItem('habitflow_missions_v2');
+  if (stored) {
+    activeMissions = JSON.parse(stored);
+    // Cleanup finished missions that happened while closed
+    var now = Date.now();
+    activeMissions.forEach(function (m) {
+      if (m.active && !m.paused && now > m.endTime) {
+        m.active = false;
+        m.finished = true;
+        m.remaining = 0;
+      }
+    });
+    // Remove finished ones from list or keep them to show "Done" state? 
+    // Let's keep them briefly or just notify. For now, keep active ones.
+    activeMissions = activeMissions.filter(function (m) { return !m.finished; });
+
+    if (activeMissions.length > 0) {
+      startTimerInterval();
+    }
+  }
+  updateMissionUI();
+
+  // Set default datetime for picker
+  var now = new Date();
+  now.setMinutes(now.getMinutes() - now.getTimezoneOffset() + 60);
+  document.getElementById('missionTargetTime').value = now.toISOString().slice(0, 16);
+}
+
+function toggleMissionType() {
+  var type = document.querySelector('input[name="missionType"]:checked').value;
+  document.getElementById('missionInputDuration').style.display = type === 'duration' ? 'block' : 'none';
+  document.getElementById('missionInputTarget').style.display = type === 'target' ? 'block' : 'none';
+}
+
+function startMission() {
+  var name = document.getElementById('missionName').value.trim();
+  var type = document.querySelector('input[name="missionType"]:checked').value;
+  var durationMinutes = 0;
+
+  if (!name) { showToast('Name eingeben!', 'error'); return; }
+
+  if (type === 'duration') {
+    durationMinutes = parseInt(document.getElementById('missionDuration').value);
+    if (!durationMinutes || durationMinutes <= 0) { showToast('Dauer eingeben!', 'error'); return; }
+  } else {
+    var targetStr = document.getElementById('missionTargetTime').value;
+    if (!targetStr) { showToast('Zeitpunkt wählen!', 'error'); return; }
+    var targetTime = new Date(targetStr).getTime();
+    var now = Date.now();
+    if (targetTime <= now) { showToast('Zeitpunkt muss in Zukunft liegen!', 'error'); return; }
+    durationMinutes = (targetTime - now) / 60000;
+  }
+
+  var newMission = {
+    id: Date.now() + Math.random().toString(),
+    active: true,
+    paused: false,
+    name: name,
+    totalSeconds: durationMinutes * 60,
+    endTime: Date.now() + (durationMinutes * 60 * 1000),
+    remaining: durationMinutes * 60 * 1000
+  };
+
+  activeMissions.push(newMission);
+  saveMissions();
+  startTimerInterval();
+  updateMissionUI();
+
+  // Clear input
+  document.getElementById('missionName').value = '';
+
+  if (Notification.permission !== 'granted') Notification.requestPermission();
+}
+
+function saveMissions() {
+  localStorage.setItem('habitflow_missions_v2', JSON.stringify(activeMissions));
+}
+
+function startTimerInterval() {
+  clearInterval(missionInterval);
+  missionInterval = setInterval(updateTimer, 1000);
+  updateTimer();
+}
+
+function updateTimer() {
+  var now = Date.now();
+  var activeCount = 0;
+  var needsSave = false;
+
+  activeMissions.forEach(function (m) {
+    if (!m.active || m.paused) return;
+
+    activeCount++;
+    m.remaining = m.endTime - now;
+
+    if (m.remaining <= 0) {
+      completeMission(m.id);
+      needsSave = true;
+    }
+  });
+
+  if (activeCount === 0 && activeMissions.length === 0) {
+    clearInterval(missionInterval);
+    document.title = 'HabitFlow';
+  } else if (activeCount > 0) {
+    document.title = '(' + activeCount + ') Missions active';
+  }
+
+  if (needsSave) saveMissions();
+  updateMissionUI();
+}
+
+function completeMission(id) {
+  var m = activeMissions.find(function (x) { return x.id === id; });
+  if (m) {
+    playAlarmSound();
+    showToast('Mission erledigt: ' + m.name + ' 🎯', 'success');
+    if (Notification.permission === 'granted') {
+      new Notification("Mission Complete! ⚔️", { body: m.name + " erledigt!", icon: "icon-192.svg" });
+    }
+    // Remove from array
+    activeMissions = activeMissions.filter(function (x) { return x.id !== id; });
+  }
+}
+
+function pauseMission(id) {
+  var m = activeMissions.find(function (x) { return x.id === id; });
+  if (!m) return;
+
+  if (m.paused) {
+    // Resume
+    m.paused = false;
+    m.endTime = Date.now() + m.remaining;
+  } else {
+    // Pause
+    m.paused = true;
+    m.remaining = m.endTime - Date.now();
+  }
+  saveMissions();
+  updateMissionUI();
+
+  // Restart interval if needed
+  startTimerInterval();
+}
+
+function stopMission(id) {
+  if (confirm('Mission wirklich abbrechen?')) {
+    activeMissions = activeMissions.filter(function (x) { return x.id !== id; });
+    saveMissions();
+    updateMissionUI();
+  }
+}
+
+function updateMissionUI() {
+  var list = document.getElementById('activeMissionsList');
+  var container = document.getElementById('missionsContainer');
+
+  if (activeMissions.length === 0) {
+    list.style.display = 'none';
+    return;
+  }
+
+  list.style.display = 'block';
+  var html = '';
+
+  activeMissions.forEach(function (m) {
+    var totalMs = m.totalSeconds * 1000;
+    var currentMs = m.paused ? m.remaining : (m.endTime - Date.now());
+    if (currentMs < 0) currentMs = 0;
+
+    var pct = 100 - (currentMs / totalMs * 100);
+    var min = Math.floor(currentMs / 60000);
+    var sec = Math.floor((currentMs % 60000) / 1000);
+    var timeStr = String(min).padStart(2, '0') + ':' + String(sec).padStart(2, '0');
+
+    html += '<div class="card" style="padding:10px; background:var(--bg-card); border:1px solid var(--border-color); animation: fadeIn 0.3s ease;">';
+    html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;">';
+    html += '<div style="font-weight:600;">' + m.name + '</div>';
+    html += '<div style="font-family:monospace;font-size:1.1rem;color:var(--accent-warm);">' + timeStr + '</div>';
+    html += '</div>';
+
+    // Progress bar
+    html += '<div style="height:4px;background:var(--bg-input);border-radius:2px;margin-bottom:8px;overflow:hidden;">';
+    html += '<div style="height:100%;background:var(--accent-warm);width:' + pct + '%;transition: width 1s linear;"></div>';
+    html += '</div>';
+
+    // Controls
+    html += '<div style="display:flex;gap:5px;justify-content:flex-end;">';
+    html += '<button class="btn btn-secondary btn-sm" onclick="pauseMission(\'' + m.id + '\')" style="padding:4px 8px;font-size:0.8rem;">' + (m.paused ? '▶️' : '⏸️') + '</button>';
+    html += '<button class="btn btn-danger btn-sm" onclick="stopMission(\'' + m.id + '\')" style="padding:4px 8px;font-size:0.8rem;">⏹️</button>';
+    html += '</div>';
+    html += '</div>';
+  });
+
+  container.innerHTML = html;
+}
+
+function playAlarmSound() {
+  try {
+    var ctx = new (window.AudioContext || window.webkitAudioContext)();
+    var osc = ctx.createOscillator();
+    var gain = ctx.createGain();
+
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(440, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.5);
+
+    gain.gain.setValueAtTime(0.5, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 1);
+
+    osc.start();
+    osc.stop(ctx.currentTime + 1);
+
+    // Pulse 3 times
+    setTimeout(function () {
+      var o2 = ctx.createOscillator();
+      var g2 = ctx.createGain();
+      o2.connect(g2); g2.connect(ctx.destination);
+      o2.frequency.value = 880;
+      g2.gain.value = 0.5; g2.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 1);
+      o2.start(); o2.stop(ctx.currentTime + 1);
+    }, 1200);
+
+  } catch (e) { console.error('Audio error', e); }
+}
+
+// ═══════════════════════════════════════
+// BACKGROUND IMAGE UPLOAD
+// ═══════════════════════════════════════
+
+function handleBackgroundUpload(e) {
+  var file = e.target.files[0];
+  if (!file) return;
+
+  if (file.size > 4 * 1024 * 1024) {
+    showToast('Bild zu groß! Max 4MB.', 'error');
+    return;
+  }
+
+  var reader = new FileReader();
+  reader.onload = function (evt) {
+    var dataUrl = evt.target.result;
+    try {
+      localStorage.setItem('habitflow_bg_image', dataUrl);
+      applyBackground(dataUrl);
+      showToast('Hintergrund aktualisiert! 🖼️', 'success');
+    } catch (err) {
+      showToast('Speicher voll! Bild zu groß.', 'error');
+    }
+  };
+  reader.readAsDataURL(file);
+}
+
+function applyBackground(dataUrl) {
+  if (dataUrl) {
+    document.body.style.backgroundImage = 'linear-gradient(rgba(13, 11, 26, 0.7), rgba(13, 11, 26, 0.85)), url("' + dataUrl + '")';
+  } else {
+    document.body.style.backgroundImage = ''; // Reset to CSS default
+  }
+}
+
+function resetBackground() {
+  if (confirm('Hintergrund zurücksetzen?')) {
+    localStorage.removeItem('habitflow_bg_image');
+    applyBackground(null);
+    showToast('Hintergrund zurückgesetzt', 'info');
+  }
+}
+
+// ═══════════════════════════════════════
 // INIT
 // ═══════════════════════════════════════
 
@@ -1015,5 +1330,10 @@ document.addEventListener('keydown', function (e) {
   loadData();
   document.documentElement.setAttribute('data-theme', data.settings.theme || 'dark');
   updateThemeUI();
+
+  // Load custom background
+  var savedBg = localStorage.getItem('habitflow_bg_image');
+  if (savedBg) applyBackground(savedBg);
+
   renderDashboard();
 })();

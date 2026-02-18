@@ -1,78 +1,78 @@
 /* ═══════════════════════════════════════════════
-   Habit Workflow Worksheet – Design System
-   Mobile-first, dark mode default, glassmorphism
+   HabitFlow – Anime Vibe Design System ✨
+   Neon pastels, kawaii glow, floating stars
    ═══════════════════════════════════════════════ */
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;500;600;700;800&display=swap');
 
 /* ── CSS Custom Properties ── */
 :root {
-  /* Dark theme (default) */
-  --bg-primary: #0f0e17;
-  --bg-secondary: #1a1a2e;
-  --bg-card: rgba(30, 30, 55, 0.85);
-  --bg-card-hover: rgba(40, 40, 70, 0.9);
-  --bg-glass: rgba(255, 255, 255, 0.06);
-  --bg-input: rgba(255, 255, 255, 0.12);
-  --bg-input-option: #2a2a45;
+  /* Dark theme – Anime Night Sky */
+  --bg-primary: #0d0b1a;
+  --bg-secondary: #151232;
+  --bg-card: rgba(25, 20, 60, 0.88);
+  --bg-card-hover: rgba(40, 30, 80, 0.92);
+  --bg-glass: rgba(200, 150, 255, 0.06);
+  --bg-input: rgba(255, 255, 255, 0.1);
+  --bg-input-option: #1e1a42;
 
-  --text-primary: #fffffe;
-  --text-secondary: #a7a9be;
-  --text-muted: #6b6d80;
+  --text-primary: #f0e6ff;
+  --text-secondary: #b8a9d4;
+  --text-muted: #7b6e99;
 
-  --accent-primary: #7f5af0;
-  --accent-secondary: #2cb67d;
-  --accent-tertiary: #e16162;
-  --accent-warm: #ff8906;
-  --accent-cool: #3da9fc;
-  --accent-pink: #e853a0;
+  --accent-primary: #a855f7;
+  --accent-secondary: #34d399;
+  --accent-tertiary: #f472b6;
+  --accent-warm: #fbbf24;
+  --accent-cool: #22d3ee;
+  --accent-pink: #f472b6;
 
-  --gradient-primary: linear-gradient(135deg, #7f5af0 0%, #2cb67d 100%);
-  --gradient-warm: linear-gradient(135deg, #ff8906 0%, #e16162 100%);
-  --gradient-cool: linear-gradient(135deg, #3da9fc 0%, #7f5af0 100%);
-  --gradient-card: linear-gradient(145deg, rgba(127, 90, 240, 0.08) 0%, rgba(44, 182, 125, 0.05) 100%);
+  --gradient-primary: linear-gradient(135deg, #a855f7 0%, #ec4899 50%, #f472b6 100%);
+  --gradient-warm: linear-gradient(135deg, #fbbf24 0%, #f472b6 100%);
+  --gradient-cool: linear-gradient(135deg, #22d3ee 0%, #a855f7 100%);
+  --gradient-card: linear-gradient(145deg, rgba(168, 85, 247, 0.1) 0%, rgba(244, 114, 182, 0.06) 100%);
 
-  --border-color: rgba(255, 255, 255, 0.08);
-  --border-active: rgba(127, 90, 240, 0.4);
-  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
-  --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.4);
-  --shadow-lg: 0 8px 40px rgba(0, 0, 0, 0.5);
-  --shadow-glow: 0 0 20px rgba(127, 90, 240, 0.2);
+  --border-color: rgba(168, 85, 247, 0.15);
+  --border-active: rgba(168, 85, 247, 0.5);
+  --shadow-sm: 0 2px 8px rgba(168, 85, 247, 0.15);
+  --shadow-md: 0 4px 20px rgba(168, 85, 247, 0.2);
+  --shadow-lg: 0 8px 40px rgba(168, 85, 247, 0.25);
+  --shadow-glow: 0 0 25px rgba(168, 85, 247, 0.3);
 
-  --radius-sm: 8px;
-  --radius-md: 12px;
-  --radius-lg: 16px;
-  --radius-xl: 24px;
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 18px;
+  --radius-xl: 26px;
   --radius-full: 50%;
 
-  --transition-fast: 0.15s ease;
-  --transition-base: 0.25s ease;
-  --transition-slow: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-fast: 0.18s ease;
+  --transition-base: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 
-  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-family: 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   --nav-height: 60px;
   --sidebar-width: 260px;
 }
 
-/* ── Light Theme ── */
+/* ── Light Theme – Sakura Daylight ── */
 [data-theme="light"] {
-  --bg-primary: #f5f3ff;
+  --bg-primary: #fef1f8;
   --bg-secondary: #ffffff;
-  --bg-card: rgba(255, 255, 255, 0.9);
-  --bg-card-hover: rgba(255, 255, 255, 0.98);
-  --bg-glass: rgba(127, 90, 240, 0.05);
-  --bg-input: rgba(0, 0, 0, 0.06);
+  --bg-card: rgba(255, 255, 255, 0.92);
+  --bg-card-hover: rgba(255, 240, 250, 0.98);
+  --bg-glass: rgba(168, 85, 247, 0.05);
+  --bg-input: rgba(168, 85, 247, 0.06);
   --bg-input-option: #ffffff;
 
-  --text-primary: #1a1a2e;
-  --text-secondary: #555770;
-  --text-muted: #8b8da0;
+  --text-primary: #1a1035;
+  --text-secondary: #5a4878;
+  --text-muted: #9585b0;
 
-  --border-color: rgba(0, 0, 0, 0.1);
-  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.06);
-  --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.08);
-  --shadow-lg: 0 8px 40px rgba(0, 0, 0, 0.1);
-  --shadow-glow: 0 0 20px rgba(127, 90, 240, 0.1);
+  --border-color: rgba(168, 85, 247, 0.12);
+  --shadow-sm: 0 2px 8px rgba(168, 85, 247, 0.08);
+  --shadow-md: 0 4px 20px rgba(168, 85, 247, 0.1);
+  --shadow-lg: 0 8px 40px rgba(168, 85, 247, 0.12);
+  --shadow-glow: 0 0 20px rgba(168, 85, 247, 0.1);
 }
 
 /* ── Reset & Base ── */
@@ -96,22 +96,61 @@ body {
   color: var(--text-primary);
   min-height: 100vh;
   overflow-x: hidden;
-  line-height: 1.5;
+  line-height: 1.6;
+  font-weight: 500;
 }
 
-/* Animated background gradient */
+/* Anime nebula background */
+body {
+  font-family: var(--font-family);
+  background-color: var(--bg-primary);
+  /* Fallback gradient if no image */
+  background-image:
+    linear-gradient(rgba(13, 11, 26, 0.7), rgba(13, 11, 26, 0.85)),
+    url('bg.jpg');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  color: var(--text-primary);
+  min-height: 100vh;
+  overflow-x: hidden;
+  line-height: 1.6;
+  font-weight: 500;
+}
+
+/* Background overlay for readability */
 body::before {
   content: '';
   position: fixed;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background:
-    radial-gradient(circle at 20% 20%, rgba(127, 90, 240, 0.08) 0%, transparent 50%),
-    radial-gradient(circle at 80% 80%, rgba(44, 182, 125, 0.06) 0%, transparent 50%),
-    radial-gradient(circle at 50% 50%, rgba(225, 97, 98, 0.04) 0%, transparent 50%);
-  animation: bgShift 20s ease-in-out infinite alternate;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle at center, transparent 0%, rgba(0, 0, 0, 0.4) 100%);
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* Floating stars overlay */
+body::after {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image:
+    radial-gradient(1px 1px at 10% 15%, rgba(255, 255, 255, 0.6), transparent),
+    radial-gradient(1px 1px at 30% 40%, rgba(244, 114, 182, 0.5), transparent),
+    radial-gradient(1.5px 1.5px at 55% 20%, rgba(168, 85, 247, 0.6), transparent),
+    radial-gradient(1px 1px at 75% 60%, rgba(34, 211, 238, 0.5), transparent),
+    radial-gradient(1px 1px at 90% 30%, rgba(255, 255, 255, 0.4), transparent),
+    radial-gradient(1.5px 1.5px at 20% 70%, rgba(244, 114, 182, 0.4), transparent),
+    radial-gradient(1px 1px at 45% 85%, rgba(168, 85, 247, 0.5), transparent),
+    radial-gradient(1px 1px at 65% 45%, rgba(255, 255, 255, 0.3), transparent),
+    radial-gradient(1.5px 1.5px at 80% 90%, rgba(34, 211, 238, 0.4), transparent),
+    radial-gradient(1px 1px at 5% 55%, rgba(255, 255, 255, 0.5), transparent);
+  animation: starsTwinkle 4s ease-in-out infinite alternate;
   z-index: -1;
   pointer-events: none;
 }
@@ -122,7 +161,21 @@ body::before {
   }
 
   100% {
-    transform: translate(-5%, -5%) rotate(3deg);
+    transform: translate(-3%, -3%) rotate(2deg);
+  }
+}
+
+@keyframes starsTwinkle {
+  0% {
+    opacity: 0.6;
+  }
+
+  50% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0.7;
   }
 }
 
@@ -2031,7 +2084,7 @@ body::before {
   }
 }
 
-/* ── Scrollbar ── */
+/* ── Anime Scrollbar ── */
 ::-webkit-scrollbar {
   width: 6px;
 }
@@ -2041,16 +2094,161 @@ body::before {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--border-color);
+  background: linear-gradient(180deg, #a855f7, #f472b6);
   border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--text-muted);
+  background: linear-gradient(180deg, #c084fc, #fb7185);
 }
 
 /* ── Selection ── */
 ::selection {
-  background: rgba(127, 90, 240, 0.3);
+  background: rgba(244, 114, 182, 0.35);
   color: var(--text-primary);
+}
+
+/* ═══════════════════════════════════════
+   ANIME VIBE SPECIAL EFFECTS ✨
+   ═══════════════════════════════════════ */
+
+/* Cards: neon glow on hover */
+.card:hover {
+  border-color: rgba(168, 85, 247, 0.3);
+  box-shadow:
+    0 0 15px rgba(168, 85, 247, 0.15),
+    0 0 30px rgba(244, 114, 182, 0.08),
+    var(--shadow-md);
+}
+
+/* Stat cards: subtle neon pulse border */
+.stat-card {
+  border: 1px solid rgba(168, 85, 247, 0.12);
+  transition: all var(--transition-base);
+  position: relative;
+  overflow: hidden;
+}
+
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #a855f7, #f472b6, transparent);
+  animation: neonSlide 3s ease-in-out infinite;
+}
+
+@keyframes neonSlide {
+  0% {
+    left: -100%;
+  }
+
+  100% {
+    left: 100%;
+  }
+}
+
+/* Buttons: bouncy hover */
+.btn:hover {
+  transform: translateY(-2px) scale(1.02);
+}
+
+.btn:active {
+  transform: translateY(0) scale(0.98);
+}
+
+.btn-primary {
+  box-shadow: 0 4px 15px rgba(168, 85, 247, 0.3);
+}
+
+.btn-primary:hover {
+  box-shadow: 0 6px 25px rgba(168, 85, 247, 0.45);
+}
+
+/* Habit item: glow when completed */
+.habit-item.completed {
+  border-color: rgba(52, 211, 153, 0.25);
+  box-shadow: 0 0 12px rgba(52, 211, 153, 0.1);
+}
+
+.habit-item.completed .habit-check {
+  box-shadow: 0 0 10px rgba(52, 211, 153, 0.4);
+}
+
+/* Mood buttons: glowing selected state */
+.mood-btn.active {
+  box-shadow: 0 0 15px rgba(168, 85, 247, 0.4);
+  transform: scale(1.15);
+}
+
+.mood-btn:hover {
+  transform: scale(1.2);
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+}
+
+/* Logo: kawaii bounce */
+.logo-icon {
+  animation: kawaiBounce 2s ease-in-out infinite;
+}
+
+@keyframes kawaiBounce {
+
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+
+  25% {
+    transform: translateY(-3px) rotate(-3deg);
+  }
+
+  75% {
+    transform: translateY(-2px) rotate(3deg);
+  }
+}
+
+/* Nav items: neon glow active */
+.nav-item.active {
+  box-shadow: inset 0 0 15px rgba(168, 85, 247, 0.15);
+  text-shadow: 0 0 8px rgba(168, 85, 247, 0.3);
+}
+
+/* Badge card: sparkle effect */
+.badge-card.earned {
+  border-color: rgba(251, 191, 36, 0.3);
+  box-shadow: 0 0 15px rgba(251, 191, 36, 0.15);
+}
+
+/* Progress ring: neon glow */
+.ring-fill {
+  filter: drop-shadow(0 0 6px rgba(168, 85, 247, 0.5));
+}
+
+/* Heatmap cells: glow on high completion */
+.heatmap-cell:hover {
+  box-shadow: 0 0 8px rgba(168, 85, 247, 0.4);
+  transform: scale(1.1);
+}
+
+/* Toast: anime-style */
+.toast {
+  border-left-width: 3px;
+  box-shadow: 0 4px 20px rgba(168, 85, 247, 0.2);
+}
+
+/* Modal: anime glow */
+.modal-overlay.active .modal {
+  box-shadow: 0 0 40px rgba(168, 85, 247, 0.2), 0 0 80px rgba(244, 114, 182, 0.1);
+}
+
+/* Category dots: glow */
+.habit-category-dot {
+  box-shadow: 0 0 6px currentColor;
+}
+
+/* Streak flame: subtle glow */
+.habit-streak {
+  text-shadow: 0 0 8px rgba(251, 191, 36, 0.5);
 }
